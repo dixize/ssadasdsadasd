@@ -2,143 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Futuristic Neon Lab</title>
-    <style>
-        /* Базовые стили и темная тема */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #0d0d0d;
-            color: #fff;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        /* Холст для матричного фона */
-        #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            opacity: 0.6;
-        }
-
-        /* Контейнер для контента (поверх фона) */
-        .dashboard {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #ff8c00;
-            text-shadow: 0 0 20px #ff8c00;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Карточка Glassmorphism */
-        .glass-card {
-            width: 350px;
-            height: 220px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        /* Эффект блика при наведении */
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transform: skewX(-25deg);
-            transition: 0.7s;
-        }
-
-        .glass-card:hover::before {
-            left: 150%;
-        }
-
-        .glass-card h3 {
-            color: #a020f0;
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-        }
-
-        .glass-card p {
-            text-align: center;
-            color: #ccc;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        /* Дышащая неоновая кнопка */
-        .neon-btn {
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            background: transparent;
-            color: #ff8c00;
-            border: 2px solid #ff8c00;
-            border-radius: 8px;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            animation: breathe 2.5s infinite alternate ease-in-out;
-        }
-
-        @keyframes breathe {
-            from {
-                box-shadow: 0 0 5px #ff8c00, inset 0 0 0px #ff8c00;
-                transform: scale(1);
-            }
-            to {
-                box-shadow: 0 0 25px #ff8c00, 0 0 40px #a020f0;
-                transform: scale(1.03);
-            }
-        }
-
-        .neon-btn:hover {
-            background: #ff8c00;
-            color: #0d0d0d;
-            box-shadow: 0 0 50px #ff8c00;
-            transform: scale(1.08);
-        }
-    </style>
-</head>
+    <link rel="stylesheet" href="style.css"> </head>
 <body>
 
     <canvas id="matrix-canvas"></canvas>
@@ -148,58 +13,11 @@
 
         <div class="glass-card">
             <h3>Проект: Будущее</h3>
-            <p>Наведи курсор на эту карточку, чтобы увидеть, как по ней пробегает световой блик.</p>
+            <p>Наведи курсор на эту карточку, чтобы увидеть эффект стеклянного блеска.</p>
         </div>
 
-        <button class="neon-btn" onclick="triggerAlert()">Запустить Систему</button>
+        <button class="neon-btn">Запустить Систему</button>
     </div>
 
-    <script>
-        // === НАСТРОЙКА MATRIX CANVAS ===
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        // Символы и настройки для дождя
-        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZホワミムメモ';
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        const drops = Array(Math.floor(columns)).fill(1);
-
-        function drawMatrix() {
-            // Полупрозрачный черный фон создает шлейф для падающих букв
-            ctx.fillStyle = 'rgba(13, 13, 13, 0.08)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Фиолетовый цвет текста
-            ctx.fillStyle = '#a020f0';
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = chars.charAt(Math.floor(Math.random() * chars.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                // Если капля достигла низа, сбрасываем её наверх случайным образом
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-
-        // Запускаем отрисовку (~30 кадров в секунду)
-        setInterval(drawMatrix, 35);
-
-        // Маленький интерактив на JS
-        function triggerAlert() {
-            alert('Система инициализирована!');
-        }
-    </script>
-</body>
+    <script src="script.js"></script> </body>
 </html>
